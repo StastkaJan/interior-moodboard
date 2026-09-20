@@ -4,6 +4,7 @@ import type { Asset } from './data/types'
 import { BoardCanvas } from './features/board/BoardCanvas'
 import { BoardSettings } from './features/board/BoardSettings'
 import { ItemInspector } from './features/board/ItemInspector'
+import { LayerControls } from './features/board/LayerControls'
 import { boardReducer, createInitialBoard } from './features/board/boardReducer'
 import styles from './App.module.css'
 import { AssetLibrary } from './features/library/AssetLibrary'
@@ -135,6 +136,13 @@ function App() {
                 }
                 onResize={(width) =>
                   dispatch({ type: 'resize', id: selectedItem.id, width })
+                }
+              />
+              <LayerControls
+                board={board}
+                selectedId={selectedItem.id}
+                onReorder={(direction) =>
+                  dispatch({ type: 'reorder', id: selectedItem.id, direction })
                 }
               />
               <button

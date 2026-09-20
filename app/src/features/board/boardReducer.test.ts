@@ -22,6 +22,59 @@ function twoItems() {
 }
 
 describe('board reducer', () => {
+  it('reorders one layer in either direction without changing any item fields', () => {
+    const board = boardReducer(twoItems(), { type: 'add', id: 'third', asset })
+    const forward = boardReducer(board, {
+      type: 'reorder',
+      id: 'first',
+      direction: 'forward',
+    })
+    expect(forward).toEqual({
+      ...board,
+      items: [board.items[1], board.items[0], board.items[2]],
+    })
+    expect(forward.items[1]).toBe(board.items[0])
+    expect(forward.items[0]).toBe(board.items[1])
+    expect(forward.items[2]).toBe(board.items[2])
+    expect(board.items.map((item) => item.id)).toEqual([
+      'first',
+      'second',
+      'third',
+    ])
+    const backward = boardReducer(forward, {
+      type: 'reorder',
+      id: 'first',
+      direction: 'backward',
+    })
+    expect(backward).toEqual(board)
+    expect(backward.items[0]).toBe(board.items[0])
+  })
+
+  it('ignores layer boundaries and missing items', () => {
+    const board = twoItems()
+    expect(
+      boardReducer(board, {
+        type: 'reorder',
+        id: 'first',
+        direction: 'backward',
+      }),
+    ).toBe(board)
+    expect(
+      boardReducer(board, {
+        type: 'reorder',
+        id: 'second',
+        direction: 'forward',
+      }),
+    ).toBe(board)
+    expect(
+      boardReducer(board, {
+        type: 'reorder',
+        id: 'missing',
+        direction: 'forward',
+      }),
+    ).toBe(board)
+  })
+
   it('commits trimmed titles and known palettes without changing items or order', () => {
     const board = twoItems()
     const renamed = boardReducer(board, {

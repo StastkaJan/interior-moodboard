@@ -15,6 +15,7 @@ export type BoardAction =
   | { type: 'move'; id: string; x: number; y: number }
   | { type: 'resize'; id: string; width: number }
   | { type: 'remove'; id: string }
+  | { type: 'reorder'; id: string; direction: 'forward' | 'backward' }
 
 export const DEFAULT_BOARD_TITLE = 'My room concept'
 export const MAX_BOARD_TITLE_LENGTH = 80
@@ -64,6 +65,14 @@ export function boardReducer(board: Board, action: BoardAction): Board {
 
   const item = board.items.find((entry) => entry.id === action.id)
   if (!item) return board
+  if (action.type === 'reorder') {
+    const index = board.items.indexOf(item)
+    const target = index + (action.direction === 'forward' ? 1 : -1)
+    if (target < 0 || target >= board.items.length) return board
+    const items = [...board.items]
+    ;[items[index], items[target]] = [items[target], items[index]]
+    return { ...board, items }
+  }
   if (action.type === 'remove')
     return {
       ...board,
