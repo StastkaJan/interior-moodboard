@@ -52,6 +52,25 @@
   height: 100%;
   object-fit: contain;
   user-select: none;
+  transition:
+    transform 140ms ease-out,
+    filter 140ms ease-out;
+}
+
+.item[data-dragging] img {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 6px 5px #3c362733);
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item img {
+    transition: none;
+  }
+
+  .item[data-dragging] img {
+    transform: none;
+  }
 }
 
 .item[aria-pressed='true'] {
