@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="300" viewBox="0 0 280 300"><title>Travertine side table</title><defs>
+<linearGradient id="linen" x2=".7" y2="1"><stop stop-color="#f0e6d4"/><stop offset=".55" stop-color="#dfd1b9"/><stop offset="1" stop-color="#bba98d"/></linearGradient>
+<linearGradient id="olive" x2="1" y2=".5"><stop stop-color="#949677"/><stop offset=".5" stop-color="#777e57"/><stop offset="1" stop-color="#555f40"/></linearGradient>
+<linearGradient id="wood" x2="1" y2=".8"><stop stop-color="#b68d60"/><stop offset=".5" stop-color="#987047"/><stop offset="1" stop-color="#785339"/></linearGradient>
+<linearGradient id="stone" x2=".4" y2="1"><stop stop-color="#e5d7bd"/><stop offset="1" stop-color="#c4ae8c"/></linearGradient>
+<linearGradient id="mirror" x2="1" y2="1"><stop stop-color="#9baba4"/><stop offset=".5" stop-color="#dbe1d7"/><stop offset="1" stop-color="#b4b5a5"/></linearGradient>
+<linearGradient id="clay" x2="1"><stop stop-color="#985f47"/><stop offset=".4" stop-color="#c18664"/><stop offset="1" stop-color="#a26c50"/></linearGradient>
+<pattern id="weave" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 1h6M1 0v6" stroke="#806e52" stroke-opacity=".25"/><path d="M0 4h6M4 0v6" stroke="#fff" stroke-opacity=".2"/></pattern>
+</defs><path d="M105 100h70v156q-35 20-70 0z" fill="url(#stone)"/><ellipse cx="140" cy="105" rx="103" ry="38" fill="#bca485"/><ellipse cx="140" cy="95" rx="103" ry="38" fill="url(#stone)"/></svg>

@@ -1,6 +1,7 @@
 import chair from './assets/lounge-chair.svg'
 import stone from './assets/travertine.svg'
 import styles from './App.module.css'
+import { AssetLibrary } from './features/library/AssetLibrary'
 
 function App() {
   return (
@@ -42,36 +43,7 @@ function App() {
           <p className={styles.muted}>
             Considered pieces for a space that feels like you.
           </p>
-          <div className={styles.sampleGrid}>
-            <figure className={styles.assetCard}>
-              <img
-                src={chair}
-                alt="Oak lounge chair with a cream upholstered seat"
-                width="480"
-                height="480"
-              />
-              <figcaption>
-                <strong>Oak lounge chair</strong>
-                <span>Furniture · natural oak</span>
-              </figcaption>
-            </figure>
-            <figure className={styles.assetCard}>
-              <img
-                src={stone}
-                alt="Warm ivory travertine with fine mineral veins"
-                width="480"
-                height="480"
-              />
-              <figcaption>
-                <strong>Ivory travertine</strong>
-                <span>Material · honed stone</span>
-              </figcaption>
-            </figure>
-          </div>
-          <p className={styles.footnote}>
-            A sample of the collection. Adding pieces will be available in the
-            next slice.
-          </p>
+          <AssetLibrary />
         </section>
         <section
           className={styles.boardSection}

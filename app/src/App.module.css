@@ -90,33 +90,6 @@
   color: var(--color-muted);
   font-size: 13px;
 }
-.sampleGrid {
-  display: grid;
-  gap: 20px;
-  margin: 25px 0;
-}
-.assetCard img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: cover;
-  background: #ece9e1;
-  border-radius: 3px;
-}
-.assetCard figcaption {
-  margin-top: 10px;
-  font-size: 12px;
-}
-.assetCard strong {
-  display: block;
-  font-weight: 500;
-}
-.assetCard figcaption span {
-  display: block;
-  color: var(--color-muted);
-  font-size: 11px;
-  margin-top: 3px;
-}
 .footnote {
   font-size: 11px;
   color: var(--color-muted);
@@ -349,11 +322,6 @@
   }
   .boardHeader {
     margin-bottom: 20px;
-  }
-  .sampleGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-    margin-block: 20px;
   }
   .library,
   .inspector {
