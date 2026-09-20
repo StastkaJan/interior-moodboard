@@ -5,6 +5,7 @@ import { BoardCanvas } from './features/board/BoardCanvas'
 import { BoardSettings } from './features/board/BoardSettings'
 import { ItemInspector } from './features/board/ItemInspector'
 import { LayerControls } from './features/board/LayerControls'
+import { keyboardMove } from './features/board/keyboardMove'
 import { SaveStatus } from './features/board/SaveStatus'
 import { usePersistentBoard } from './features/board/usePersistentBoard'
 import styles from './App.module.css'
@@ -39,7 +40,22 @@ function App() {
     boardSectionRef.current?.focus()
   }
   return (
-    <div className={styles.app}>
+    <div
+      className={styles.app}
+      onKeyDown={(event) => {
+        if (
+          !selectedItem ||
+          event.defaultPrevented ||
+          (event.target instanceof Element &&
+            event.target.closest('input, textarea, select, [contenteditable]'))
+        )
+          return
+        const position = keyboardMove(selectedItem, event.nativeEvent)
+        if (!position) return
+        event.preventDefault()
+        dispatch({ type: 'move', id: selectedItem.id, ...position })
+      }}
+    >
       <a className={styles.skipLink} href="#board">
         Skip to board
       </a>
@@ -85,6 +101,7 @@ function App() {
           ref={boardSectionRef}
           tabIndex={-1}
           aria-labelledby="board-heading"
+          aria-describedby="keyboard-help"
         >
           <div className={styles.boardHeader}>
             <div>
@@ -102,9 +119,20 @@ function App() {
             onMove={(id, x, y) => dispatch({ type: 'move', id, x, y })}
             onResize={(id, width) => dispatch({ type: 'resize', id, width })}
           />
+          <p className={styles.muted} id="keyboard-help">
+            Select a piece, then use arrow keys to move by 1 unit; hold Shift
+            for 10 units. Shortcuts pause while editing a field.
+          </p>
+          <p className={styles.muted} role="status" aria-live="polite">
+            {selectedItem
+              ? `${selectedAsset?.label} selected. Position ${Math.round(selectedItem.x)}, ${Math.round(selectedItem.y)}; width ${Math.round(selectedItem.width)} units.`
+              : `${board.items.length} ${board.items.length === 1 ? 'piece' : 'pieces'} on the board. No item selected.`}
+          </p>
           <div className={styles.boardFooter}>
             <span>Natural forms. Soft textures. Room to breathe.</span>
-            <span>{board.items.length} pieces</span>
+            <span>
+              {board.items.length} {board.items.length === 1 ? 'piece' : 'pieces'}
+            </span>
           </div>
           <SaveStatus
             saveResult={saveResult}
