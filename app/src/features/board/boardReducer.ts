@@ -1,0 +1,79 @@
+import type { Asset } from '../../data/types'
+import {
+  BOARD_HEIGHT,
+  BOARD_WIDTH,
+  clampPosition,
+  proportionalSize,
+} from './geometry'
+import type { Board, BoardItem } from './types'
+
+export type BoardAction =
+  | { type: 'add'; id: string; asset: Asset }
+  | { type: 'move'; id: string; x: number; y: number }
+  | { type: 'resize'; id: string; width: number }
+  | { type: 'remove'; id: string }
+
+export function createInitialBoard(): Board {
+  return {
+    version: 1,
+    title: 'My room concept',
+    width: BOARD_WIDTH,
+    height: BOARD_HEIGHT,
+    paletteId: 'sand',
+    items: [],
+  }
+}
+
+export function boardReducer(board: Board, action: BoardAction): Board {
+  if (action.type === 'add') {
+    if (
+      !action.id.trim() ||
+      !action.asset.id.trim() ||
+      board.items.some((item) => item.id === action.id)
+    )
+      return board
+    const size = proportionalSize(180, action.asset.aspectRatio)
+    if (!size) return board
+    const item: BoardItem = {
+      id: action.id,
+      assetId: action.asset.id,
+      ...size,
+      x: (BOARD_WIDTH - size.width) / 2,
+      y: (BOARD_HEIGHT - size.height) / 2,
+    }
+    return { ...board, items: [...board.items, item] }
+  }
+
+  const item = board.items.find((entry) => entry.id === action.id)
+  if (!item) return board
+  if (action.type === 'remove')
+    return {
+      ...board,
+      items: board.items.filter((entry) => entry.id !== action.id),
+    }
+
+  const size =
+    action.type === 'resize'
+      ? proportionalSize(action.width, item.width / item.height)
+      : { width: item.width, height: item.height }
+  if (!size) return board
+  const position = clampPosition(
+    size,
+    action.type === 'move' ? action.x : item.x,
+    action.type === 'move' ? action.y : item.y,
+  )
+  if (!position) return board
+  if (
+    size.width === item.width &&
+    size.height === item.height &&
+    position.x === item.x &&
+    position.y === item.y
+  )
+    return board
+  return {
+    ...board,
+    items: board.items.map((entry) =>
+      entry.id === item.id ? { ...item, ...size, ...position } : entry,
+    ),
+  }
+}
