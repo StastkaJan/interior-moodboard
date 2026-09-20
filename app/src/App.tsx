@@ -2,6 +2,7 @@
 import { assets } from './data/assets'
 import type { Asset } from './data/types'
 import { BoardCanvas } from './features/board/BoardCanvas'
+import { ItemInspector } from './features/board/ItemInspector'
 import { boardReducer, createInitialBoard } from './features/board/boardReducer'
 import styles from './App.module.css'
 import { AssetLibrary } from './features/library/AssetLibrary'
@@ -124,13 +125,24 @@ function App() {
             </select>
           </label>
           {selectedItem ? (
-            <button
-              className={styles.removeButton}
-              type="button"
-              onClick={removeSelectedItem}
-            >
-              Remove selected item
-            </button>
+            <>
+              <ItemInspector
+                item={selectedItem}
+                onMove={(x, y) =>
+                  dispatch({ type: 'move', id: selectedItem.id, x, y })
+                }
+                onResize={(width) =>
+                  dispatch({ type: 'resize', id: selectedItem.id, width })
+                }
+              />
+              <button
+                className={styles.removeButton}
+                type="button"
+                onClick={removeSelectedItem}
+              >
+                Remove selected item
+              </button>
+            </>
           ) : (
             <p className={styles.muted}>
               Choose a piece on the board, or add something you love.
