@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">
+  <defs>
+    <linearGradient id="wood" x2="1" y2="1"><stop stop-color="#c6a17b"/><stop offset="1" stop-color="#876044"/></linearGradient>
+    <linearGradient id="fabric" x2=".7" y2="1"><stop stop-color="#f1eadb"/><stop offset="1" stop-color="#bcb09a"/></linearGradient>
+    <radialGradient id="shadow"><stop stop-color="#655743" stop-opacity=".22"/><stop offset="1" stop-color="#655743" stop-opacity="0"/></radialGradient>
+  </defs>
+  <ellipse cx="244" cy="391" rx="178" ry="30" fill="url(#shadow)"/>
+  <path d="m134 253-17 135h14l34-139m175-8 36 145h-15l-54-140" fill="url(#wood)"/>
+  <path d="m144 147 35 151 143-17 39-125-19-5-40 109-108 11-30-127" fill="url(#wood)"/>
+  <path d="m146 121q3-19 27-17l133 8q19 2 24 23l-8 94q-3 13-20 13l-118-4q-15-1-18-17z" fill="url(#fabric)"/>
+  <path d="m164 243 133-13q28-1 45 20l-34 65-128-5-46-30q-14-21 30-37" fill="url(#fabric)"/>
+  <path d="m130 267 49 32 133 5 31-39-4 28-26 29-139-5-44-30z" fill="url(#wood)"/>
+  <path d="m166 308-13 87h14l23-83m114 4 19 80h14l-7-88" fill="url(#wood)"/>
+  <path d="m108 207 18 6 41 101-14 5m196-117 14 6-44 102-13-4" fill="url(#wood)"/>
+  <path d="m104 200q-4-8 6-12l80 25q8 5 3 12l-8 4-77-22m172-4 76-22q12 1 8 12l-73 26q-13 4-14-8z" fill="url(#wood)"/>
+  <path d="m181 124 122 8m-115 88 111 4m-134 38 129-10" stroke="#fff" stroke-opacity=".3" stroke-width="2" fill="none"/>
+</svg>

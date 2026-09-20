@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">
+  <defs>
+    <filter id="stone"><feTurbulence type="fractalNoise" baseFrequency=".016 .18" numOctaves="3" seed="8"/><feColorMatrix type="saturate" values="0"/><feBlend in="SourceGraphic" mode="soft-light"/></filter>
+    <linearGradient id="base" x2=".6" y2="1"><stop stop-color="#e7d9bc"/><stop offset=".5" stop-color="#d7c7a6"/><stop offset="1" stop-color="#efe5d0"/></linearGradient>
+  </defs>
+  <rect width="480" height="480" fill="url(#base)"/>
+  <rect width="480" height="480" fill="#dfcfaf" filter="url(#stone)" opacity=".4"/>
+  <g fill="none" stroke="#a68d64" opacity=".23">
+    <path d="M0 85q75 17 128 0t112 4 122-3 118 7M0 197q57-14 129-1t177-3 174 8M0 344q119-15 217 0t263-10" stroke-width="3"/>
+    <path d="M0 98q110 6 228-2t252 9M0 217q122-16 236 0t244-4M0 363q117-6 254 1t226-13"/>
+  </g>
+</svg>
