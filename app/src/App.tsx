@@ -131,7 +131,8 @@ function App() {
           <div className={styles.boardFooter}>
             <span>Natural forms. Soft textures. Room to breathe.</span>
             <span>
-              {board.items.length} {board.items.length === 1 ? 'piece' : 'pieces'}
+              {board.items.length}{' '}
+              {board.items.length === 1 ? 'piece' : 'pieces'}
             </span>
           </div>
           <SaveStatus

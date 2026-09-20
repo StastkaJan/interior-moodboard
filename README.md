@@ -2,11 +2,21 @@
 
 **Framework: React.** A visual workspace for arranging furniture, materials, and colors into a room concept.
 
-Status: project brief only. Follow the [shared development directions](DEVELOPMENT.md).
+Status: the first-release application is implemented in `app/`. Automated release checks and remaining physical-device checks are recorded in [RELEASE_VALIDATION.md](RELEASE_VALIDATION.md); S4 is not fully complete until those manual checks pass.
+
+## Documentation
+
+- This README defines the product scope, visual direction, architecture, and acceptance criteria.
+- [DEVELOPMENT.md](DEVELOPMENT.md) covers setup, implementation conventions, and validation.
+- [AGENTS.md](AGENTS.md) gives repository-specific instructions for coding agents.
+- [ROADMAP.md](ROADMAP.md) defines delivery milestones and first-release boundaries.
+- [INTEGRATION.md](INTEGRATION.md) describes integration order, shared contracts, and stage gates.
+- [TICKETS.md](TICKETS.md) contains the ordered implementation backlog and acceptance criteria.
+- [RELEASE_VALIDATION.md](RELEASE_VALIDATION.md) maps release criteria to executed evidence and remaining limitations.
 
 ## Experience and visual direction
 
-Use warm neutrals, restrained typography, material photography, and a subtly textured board. Desktop has an asset rail, central canvas, and compact selected-item controls. Mobile puts the asset catalogue and controls below the board.
+The interface uses warm neutrals, restrained typography, original furniture illustrations and material studies, and a subtly textured board. Desktop has an asset rail, central canvas, and compact selected-item controls. Mobile puts the asset catalogue and controls below the board.
 
 The signature interaction is picking up a card and placing it on the board. Give the active card a small lift and shadow, show clear selection, and keep dragging directly attached to the pointer. Animate settling after release, not the pointer tracking itself.
 
@@ -26,7 +36,7 @@ Use React, TypeScript, Vite, and CSS Modules. Render items as absolutely positio
 
 Keep board actions in `useReducer` and the active selection beside the board. Keep drag previews local to the canvas, committing a durable position on release. The ownership model follows [Thinking in React](https://react.dev/learn/thinking-in-react): shared state lives at the nearest common owner and derived values are not duplicated.
 
-Proposed structure inside `app/src/`:
+Core structure inside `app/src/`:
 
 ```text
 App.tsx
@@ -52,9 +62,11 @@ styles/tokens.css
 
 Use a 1000 by 700 logical board as a starting point. Fit it to available width while preserving aspect ratio. Convert pointer coordinates using the displayed bounding rectangle and logical dimensions; do not store viewport pixels. Keep the array order as stacking order.
 
-Clamp items inside the board and enforce a minimum size. For the first release, preserve the source aspect ratio during resizing. Repeated use of an asset creates distinct item IDs. Handle `pointercancel` by discarding the preview and preserving the last committed position.
+Items stay inside the board with both dimensions at least 40 logical units, preserving the source aspect ratio. New items start centered at width 180, subject to the same proportional size bounds. Repeated use of an asset creates distinct item IDs. `pointercancel` and lost pointer capture discard the preview and preserve the last committed geometry.
 
-Arrow keys move a selected item; a modifier can increase the step. Do not intercept those shortcuts while typing in form fields. On touch, disable native panning only on the manipulation surface, allowing the rest of the page to scroll normally.
+Arrow keys move a selected item by 1 logical unit; Shift increases the step to 10. Form fields keep their native shortcuts. The selected item's resize handle supports horizontal dragging; the labelled Width field offers the same proportional sizing. On touch, native panning is disabled on items and the resize handle, while the rest of the page can scroll normally.
+
+The catalogue contains 20 bundled original SVG illustrations, with provenance in [app/public/assets/PROVENANCE.md](app/public/assets/PROVENANCE.md). Four palette presets change the board background. Enter or blur commits inspector/title edits; Escape restores committed inspector values. Empty titles become "My room concept"; titles are trimmed and capped at 80 characters. Storage is local to this browser/device and assumes one active editing tab. Protected unreadable/newer records require explicit confirmed replacement; failed saves remain visible and can be retried.
 
 ## Build order and tests
 
@@ -67,18 +79,16 @@ Done when a board can be composed without dragging, pointer and inspector edits 
 
 ## Docker Compose setup
 
-A [Compose configuration](compose.yaml) is included. The application itself has not been scaffolded. Docker Desktop with Linux containers, or Docker Engine with Compose, is required; host Node.js is unnecessary.
+A [Compose configuration](compose.yaml) and the application are included. Docker Desktop with Linux containers, or Docker Engine with Compose, is required; host Node.js is unnecessary.
 
-When implementation starts, run these commands once from this repository's root:
+Start from this repository's root:
 
 ```powershell
-docker compose run --rm setup npm create --yes vite@latest app -- --template react-ts --no-interactive
-docker compose run --rm setup npm --prefix app install --package-lock-only
 docker compose up -d
 docker compose logs -f web
 ```
 
-Open http://localhost:5175 after the server is ready. On a clone that already contains `app/package.json` and `app/package-lock.json`, skip generation and run `docker compose up -d`.
+Open http://localhost:5175 after the server is ready. Do not regenerate the existing `app/`. The original one-time scaffold used `docker compose run --rm setup npm create --yes vite@latest app -- --template react-ts --no-interactive`, followed by `docker compose run --rm setup npm --prefix app install --package-lock-only`.
 
 The `setup` service is only used for tooling; ordinary startup launches `web`. Source changes update the running app, and container dependencies use an isolated volume. Stop with `docker compose down`. Set `APP_PORT` in a local `.env` if the default port is occupied.
 
