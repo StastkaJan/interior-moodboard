@@ -1,9 +1,36 @@
-import chair from './assets/lounge-chair.svg'
-import stone from './assets/travertine.svg'
+﻿import { useReducer, useRef, useState } from 'react'
+import { assets } from './data/assets'
+import type { Asset } from './data/types'
+import { BoardCanvas } from './features/board/BoardCanvas'
+import { boardReducer, createInitialBoard } from './features/board/boardReducer'
 import styles from './App.module.css'
 import { AssetLibrary } from './features/library/AssetLibrary'
 
 function App() {
+  const [board, dispatch] = useReducer(
+    boardReducer,
+    undefined,
+    createInitialBoard,
+  )
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const boardSectionRef = useRef<HTMLElement>(null)
+  const selectedItem = board.items.find((item) => item.id === selectedId)
+  const selectedAsset = assets.find(
+    (asset) => asset.id === selectedItem?.assetId,
+  )
+
+  function addItem(asset: Asset) {
+    const id = crypto.randomUUID()
+    dispatch({ type: 'add', id, asset })
+    setSelectedId(id)
+  }
+
+  function removeSelectedItem() {
+    if (!selectedItem) return
+    dispatch({ type: 'remove', id: selectedItem.id })
+    setSelectedId(null)
+    boardSectionRef.current?.focus()
+  }
   return (
     <div className={styles.app}>
       <a className={styles.skipLink} href="#board">
@@ -29,7 +56,7 @@ function App() {
           <a href="#library">Library</a>
           <a href="#details">Details</a>
         </nav>
-        <span className={styles.previewBadge}>Concept preview</span>
+        <span className={styles.previewBadge}>Your workspace</span>
       </header>
       <main className={styles.workspace}>
         <section
@@ -43,57 +70,32 @@ function App() {
           <p className={styles.muted}>
             Considered pieces for a space that feels like you.
           </p>
-          <AssetLibrary />
+          <AssetLibrary onAdd={addItem} />
         </section>
         <section
           className={styles.boardSection}
           id="board"
+          ref={boardSectionRef}
           tabIndex={-1}
           aria-labelledby="board-heading"
         >
           <div className={styles.boardHeader}>
             <div>
               <p className={styles.eyebrow}>Room study / 01</p>
-              <h1 id="board-heading">Quiet living</h1>
+              <h1 id="board-heading">{board.title}</h1>
             </div>
-            <span className={styles.boardSize}>1000 × 700</span>
+            <span className={styles.boardSize}>
+              {board.width} &times; {board.height}
+            </span>
           </div>
-          <figure
-            className={styles.board}
-            aria-label="Example interior moodboard"
-          >
-            <div className={styles.boardNote}>
-              <span>A little less.</span>
-              <span>A little warmer.</span>
-            </div>
-            <img
-              className={styles.stoneSample}
-              src={stone}
-              alt="Travertine sample"
-            />
-            <div
-              className={styles.linenSample}
-              role="img"
-              aria-label="Natural linen sample"
-            />
-            <img
-              className={styles.chairSample}
-              src={chair}
-              alt="Oak lounge chair"
-            />
-            <div
-              className={styles.colorSamples}
-              role="img"
-              aria-label="Example colors: chalk, olive, walnut"
-            >
-              <span />
-              <span />
-              <span />
-            </div>
-          </figure>
+          <BoardCanvas
+            board={board}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+          />
           <div className={styles.boardFooter}>
             <span>Natural forms. Soft textures. Room to breathe.</span>
-            <span>Layout preview · not yet editable</span>
+            <span>{board.items.length} pieces &middot; this session</span>
           </div>
         </section>
         <aside
@@ -103,20 +105,39 @@ function App() {
           aria-labelledby="details-heading"
         >
           <p className={styles.eyebrow}>The details</p>
-          <h2 id="details-heading">Room for possibility</h2>
-          <div className={styles.inspectorIllustration} aria-hidden="true">
-            <span />
-            <span />
-          </div>
-          <p className={styles.muted}>
-            Every good room starts with a few things you love.
-          </p>
-          <p className={styles.footnote}>
-            Item position and size controls will appear here when board editing
-            is available.
-          </p>
+          <h2 id="details-heading">
+            {selectedAsset?.label ?? 'Room for possibility'}
+          </h2>
+          <label className={styles.itemPicker}>
+            Selected item
+            <select
+              value={selectedItem?.id ?? ''}
+              onChange={(event) => setSelectedId(event.target.value || null)}
+            >
+              <option value="">Choose a piece</option>
+              {board.items.map((item, index) => (
+                <option key={item.id} value={item.id}>
+                  {index + 1}.{' '}
+                  {assets.find((asset) => asset.id === item.assetId)?.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          {selectedItem ? (
+            <button
+              className={styles.removeButton}
+              type="button"
+              onClick={removeSelectedItem}
+            >
+              Remove selected item
+            </button>
+          ) : (
+            <p className={styles.muted}>
+              Choose a piece on the board, or add something you love.
+            </p>
+          )}
           <div className={styles.palettePreview}>
-            <h3>Today’s inspiration</h3>
+            <h3>Today's inspiration</h3>
             <p>Warm minimalism</p>
             <div
               className={styles.paletteStrip}
