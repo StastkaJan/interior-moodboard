@@ -1,7 +1,7 @@
 import { assets } from '../../data/assets'
 import { palettes } from '../../data/palettes'
 import { BoardItem } from './BoardItem'
-import { clampPosition, clientToBoard } from './geometry'
+import { clampPosition, clientToBoard, pointerResize } from './geometry'
 import type { Board, BoardItem as BoardItemData } from './types'
 import styles from './BoardCanvas.module.css'
 
@@ -10,6 +10,7 @@ type BoardCanvasProps = {
   selectedId: string | null
   onSelect: (id: string) => void
   onMove: (id: string, x: number, y: number) => void
+  onResize: (id: string, width: number) => void
 }
 
 export function BoardCanvas({
@@ -17,18 +18,23 @@ export function BoardCanvas({
   selectedId,
   onSelect,
   onMove,
+  onResize,
 }: BoardCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const gesture = useRef<{
     pointerId: number
+    kind: 'move' | 'resize'
     item: BoardItemData
     offset: { x: number; y: number }
   } | null>(null)
   const [preview, setPreview] = useState<BoardItemData | null>(null)
+  const selected = board.items.find((item) => item.id === selectedId)
+  const displayedSelected = preview?.id === selectedId ? preview : selected
 
-  function startMove(
+  function startGesture(
     event: PointerEvent<HTMLButtonElement>,
     item: BoardItemData,
+    kind: 'move' | 'resize',
   ) {
     if (gesture.current || event.button !== 0 || !canvasRef.current) return
     const point = clientToBoard(
@@ -40,6 +46,7 @@ export function BoardCanvas({
     event.currentTarget.setPointerCapture(event.pointerId)
     gesture.current = {
       pointerId: event.pointerId,
+      kind,
       item,
       offset: { x: point.x - item.x, y: point.y - item.y },
     }
@@ -47,7 +54,7 @@ export function BoardCanvas({
     setPreview(item)
   }
 
-  function movePosition(event: PointerEvent) {
+  function gestureGeometry(event: PointerEvent) {
     const active = gesture.current
     if (!active || active.pointerId !== event.pointerId || !canvasRef.current)
       return null
@@ -56,16 +63,21 @@ export function BoardCanvas({
       event.clientY,
       canvasRef.current.getBoundingClientRect(),
     )
-    return point
-      ? clampPosition(
-          active.item,
-          point.x - active.offset.x,
-          point.y - active.offset.y,
-        )
-      : null
+    if (!point) return null
+    if (active.kind === 'resize')
+      return pointerResize(
+        active.item,
+        point.x - active.offset.x - active.item.x,
+      )
+    const position = clampPosition(
+      active.item,
+      point.x - active.offset.x,
+      point.y - active.offset.y,
+    )
+    return position ? { ...active.item, ...position } : null
   }
 
-  function cancelMove(event: PointerEvent) {
+  function cancelGesture(event: PointerEvent) {
     if (gesture.current?.pointerId !== event.pointerId) return
     gesture.current = null
     setPreview(null)
@@ -75,19 +87,22 @@ export function BoardCanvas({
     <div
       ref={canvasRef}
       onPointerMove={(event) => {
-        const position = movePosition(event)
+        const position = gestureGeometry(event)
         if (position && gesture.current)
           setPreview({ ...gesture.current.item, ...position })
       }}
       onPointerUp={(event) => {
-        const position = movePosition(event)
+        const position = gestureGeometry(event)
         const active = gesture.current
         if (!active || active.pointerId !== event.pointerId) return
-        cancelMove(event)
-        if (position) onMove(active.item.id, position.x, position.y)
+        cancelGesture(event)
+        if (position) {
+          if (active.kind === 'resize') onResize(active.item.id, position.width)
+          else onMove(active.item.id, position.x, position.y)
+        }
       }}
-      onPointerCancel={cancelMove}
-      onLostPointerCapture={cancelMove}
+      onPointerCancel={cancelGesture}
+      onLostPointerCapture={cancelGesture}
       className={styles.canvas}
       style={{
         backgroundColor: palettes.find(
@@ -114,11 +129,32 @@ export function BoardCanvas({
             index={index}
             selected={selectedId === item.id}
             onSelect={onSelect}
-            onPointerDown={(event) => startMove(event, item)}
+            onPointerDown={(event) => startGesture(event, item, 'move')}
             dragging={preview?.id === item.id}
           />
         ) : null
       })}
+      {selected && displayedSelected && (
+        <button
+          type="button"
+          className={styles.resizeHandle}
+          aria-label="Resize selected item"
+          title="Drag horizontally to resize, or use the Width field"
+          onPointerDown={(event) => startGesture(event, selected, 'resize')}
+          onClick={(event) => {
+            if (event.detail === 0)
+              document
+                .querySelector<HTMLInputElement>('input[name="width"]')
+                ?.focus()
+          }}
+          style={{
+            left: `clamp(0px, calc(${((displayedSelected.x + displayedSelected.width) / board.width) * 100}% - 44px), calc(100% - 44px))`,
+            top: `clamp(0px, calc(${((displayedSelected.y + displayedSelected.height) / board.height) * 100}% - 44px), calc(100% - 44px))`,
+          }}
+        >
+          <span aria-hidden="true">↔</span>
+        </button>
+      )}
     </div>
   )
 }

@@ -96,6 +96,7 @@ function App() {
             selectedId={selectedId}
             onSelect={setSelectedId}
             onMove={(id, x, y) => dispatch({ type: 'move', id, x, y })}
+            onResize={(id, width) => dispatch({ type: 'resize', id, width })}
           />
           <div className={styles.boardFooter}>
             <span>Natural forms. Soft textures. Room to breathe.</span>

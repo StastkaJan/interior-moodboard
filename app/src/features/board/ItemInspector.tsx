@@ -19,6 +19,7 @@ export function ItemInspector({ item, onMove, onResize }: Props) {
       {(['x', 'y', 'width'] as const).map((field) => (
         <NumberField
           key={`${item.id}:${field}`}
+          name={field}
           label={
             field === 'width' ? 'Width' : `Position ${field.toUpperCase()}`
           }
@@ -43,11 +44,13 @@ export function ItemInspector({ item, onMove, onResize }: Props) {
 }
 
 function NumberField({
+  name,
   label,
   value,
   normalize,
   onCommit,
 }: {
+  name: string
   label: string
   value: number
   normalize: (text: string) => number | null
@@ -88,6 +91,7 @@ function NumberField({
       <label htmlFor={id}>{label} (units)</label>
       <input
         id={id}
+        name={name}
         type="number"
         step="any"
         value={draft.text}

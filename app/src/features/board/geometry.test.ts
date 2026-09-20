@@ -1,7 +1,47 @@
 import { describe, expect, it } from 'vitest'
-import { clampPosition, clientToBoard, proportionalSize } from './geometry'
+import {
+  clampPosition,
+  clientToBoard,
+  proportionalSize,
+  pointerResize,
+} from './geometry'
 
 describe('logical board geometry', () => {
+  it.each([0.25, 0.5, 1, 1.5])(
+    'resizes from the initial grab point at scale %s',
+    (scale) => {
+      const item = { x: 800, y: 600, width: 180, height: 90 }
+      const rect = {
+        left: 110,
+        top: 40,
+        width: 1000 * scale,
+        height: 700 * scale,
+      }
+      const start = clientToBoard(110 + 960 * scale, 40 + 670 * scale, rect)!
+      const end = clientToBoard(110 + 1080 * scale, 40 + 670 * scale, rect)!
+      expect(pointerResize(item, 0)).toEqual(item)
+      expect(pointerResize(item, end.x - start.x)).toEqual({
+        x: 700,
+        y: 550,
+        width: 300,
+        height: 150,
+      })
+      expect(pointerResize(item, -10000)).toEqual({
+        x: 800,
+        y: 600,
+        width: 80,
+        height: 40,
+      })
+      expect(pointerResize(item, 10000)).toEqual({
+        x: 0,
+        y: 200,
+        width: 1000,
+        height: 500,
+      })
+      expect(item).toEqual({ x: 800, y: 600, width: 180, height: 90 })
+    },
+  )
+
   it.each([0.25, 0.5, 1, 1.5])(
     'converts client coordinates at display scale %s with a board offset',
     (scale) => {

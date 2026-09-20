@@ -42,3 +42,13 @@ export function clampPosition(
     y: Math.max(0, Math.min(BOARD_HEIGHT - size.height, y)),
   }
 }
+
+export function pointerResize(
+  item: { x: number; y: number; width: number; height: number },
+  deltaX: number,
+) {
+  const size = proportionalSize(item.width + deltaX, item.width / item.height)
+  if (!size) return null
+  const position = clampPosition(size, item.x, item.y)
+  return position ? { ...size, ...position } : null
+}
