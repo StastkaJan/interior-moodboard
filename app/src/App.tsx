@@ -94,6 +94,7 @@ function App() {
             board={board}
             selectedId={selectedId}
             onSelect={setSelectedId}
+            onMove={(id, x, y) => dispatch({ type: 'move', id, x, y })}
           />
           <div className={styles.boardFooter}>
             <span>Natural forms. Soft textures. Room to breathe.</span>

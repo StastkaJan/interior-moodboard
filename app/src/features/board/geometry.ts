@@ -2,6 +2,18 @@ export const BOARD_WIDTH = 1000
 export const BOARD_HEIGHT = 700
 export const MIN_ITEM_SIZE = 40
 
+export function clientToBoard(
+  clientX: number,
+  clientY: number,
+  rect: { left: number; top: number; width: number; height: number },
+) {
+  if (rect.width <= 0 || rect.height <= 0) return null
+  return {
+    x: ((clientX - rect.left) / rect.width) * BOARD_WIDTH,
+    y: ((clientY - rect.top) / rect.height) * BOARD_HEIGHT,
+  }
+}
+
 export function proportionalSize(width: number, aspectRatio: number) {
   if (
     !Number.isFinite(width) ||

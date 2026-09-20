@@ -1,7 +1,32 @@
 import { describe, expect, it } from 'vitest'
-import { clampPosition, proportionalSize } from './geometry'
+import { clampPosition, clientToBoard, proportionalSize } from './geometry'
 
 describe('logical board geometry', () => {
+  it.each([0.25, 0.5, 1, 1.5])(
+    'converts client coordinates at display scale %s with a board offset',
+    (scale) => {
+      const rect = {
+        left: 120,
+        top: -80,
+        width: 1000 * scale,
+        height: 700 * scale,
+      }
+      expect(clientToBoard(120 + 350 * scale, -80 + 210 * scale, rect)).toEqual(
+        { x: 350, y: 210 },
+      )
+      expect(clientToBoard(120 - 50 * scale, -80 + 800 * scale, rect)).toEqual({
+        x: -50,
+        y: 800,
+      })
+    },
+  )
+
+  it('does not convert an invisible board', () => {
+    expect(
+      clientToBoard(10, 20, { left: 0, top: 0, width: 0, height: 700 }),
+    ).toBeNull()
+  })
+
   it.each([0.5, 1, 1.5, 2])(
     'preserves ratio %s at minimum and maximum size',
     (ratio) => {

@@ -9,6 +9,8 @@ type BoardItemProps = {
   index: number
   selected: boolean
   onSelect: (id: string) => void
+  onPointerDown: PointerEventHandler<HTMLButtonElement>
+  dragging: boolean
 }
 
 export function BoardItem({
@@ -18,6 +20,8 @@ export function BoardItem({
   index,
   selected,
   onSelect,
+  onPointerDown,
+  dragging,
 }: BoardItemProps) {
   return (
     <button
@@ -26,6 +30,8 @@ export function BoardItem({
       aria-label={`Select ${asset.label}, item ${index + 1}`}
       aria-pressed={selected}
       onClick={() => onSelect(item.id)}
+      onPointerDown={onPointerDown}
+      data-dragging={dragging || undefined}
       style={{
         left: `${(item.x / board.width) * 100}%`,
         top: `${(item.y / board.height) * 100}%`,
@@ -37,3 +43,4 @@ export function BoardItem({
     </button>
   )
 }
+import type { PointerEventHandler } from 'react'

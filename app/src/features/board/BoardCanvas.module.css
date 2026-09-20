@@ -38,7 +38,12 @@
   padding: 0;
   border: 0;
   background: transparent;
-  cursor: pointer;
+  cursor: grab;
+  touch-action: none;
+}
+
+.item[data-dragging] {
+  cursor: grabbing;
 }
 
 .item img {
