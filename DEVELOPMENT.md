@@ -5,6 +5,7 @@
 | Concern | Starting choice |
 | --- | --- |
 | Language | TypeScript with strict checking |
+| Local runtime | Docker Compose with Node 24 Linux containers |
 | Build | Vite for React, Vue, Svelte, and Solid; Angular CLI for Angular |
 | Styling | CSS variables for tokens; framework-scoped CSS or CSS Modules |
 | State | Framework primitives, owned by the smallest common parent |
@@ -15,9 +16,48 @@
 | Quality | Framework-compatible ESLint configuration and Prettier |
 | Hosting | Static production build; configure route fallback if routes are introduced |
 
-Use npm consistently for these projects. Record the supported Node version in each implemented application. Keep dependency versions and lockfiles independent; an upgrade in one experiment should not force upgrades in the others.
+Use npm consistently for these projects. Use the Node runtime defined by Compose and record its resolved version in each implemented application. Keep dependency versions and lockfiles independent; an upgrade in one experiment should not force upgrades in the others.
 
 [Vite provides TypeScript templates](https://vite.dev/guide/) for the four selected frameworks. Angular should retain its [CLI-generated workspace](https://angular.dev/cli/new).
+
+## Docker Compose workflow
+
+Docker Compose is required for local setup, development, and checks in every project. Install Docker Desktop with Linux containers (or Docker Engine with Compose on Linux). Host Node.js and npm are not needed.
+
+Each repository includes a [compose.yaml](compose.yaml). Its `setup` service runs one-off generators in the repository root; its `web` service runs the generated app. Both use `node:24-bookworm-slim`. Node 24 is an [LTS release](https://nodejs.org/en/about/previous-releases); record the resolved patch version when implementation begins.
+
+Run the project's README scaffold commands once, before starting `web`. They generate `app/` and its lockfile through `setup`. The app bind mount deliberately requires that directory to exist. Commit the generated package files and lockfile.
+
+After scaffolding, run from the repository root:
+
+```powershell
+docker compose config --quiet
+docker compose up -d
+docker compose logs -f web
+docker compose down
+```
+
+Source edits are bind-mounted for live updates. Dependencies live in a project-specific named volume, separate from host dependencies. Startup runs `npm ci` before the dev server, so the lockfile must exist and match `package.json`. Each app has a different default host port, listed in its README; set `APP_PORT` in a local `.env` to override it.
+
+The dev server listens on all container interfaces while the published port binds to host localhost. Vite projects use polling for Docker Desktop file changes; Angular uses `--poll 1000`. These are development services. Production remains a static build; do not deploy the dev server.
+
+With `web` running, execute checks inside it:
+
+```powershell
+docker compose exec web npm run build
+docker compose exec web npm run check
+docker compose exec web npm run lint
+docker compose exec web npm run format:check
+docker compose exec web npm test
+```
+
+Only the build script exists immediately in every generated template. Add the remaining script contract below during implementation. For a one-off build without a running dev server, use `docker compose run --rm web sh -c "npm ci && npm run build"`.
+
+When changing dependencies, stop `web`, run `docker compose run --rm web npm install <package>`, commit both package files, then start it again. Do not run an install concurrently with the dev server or tests.
+
+When Playwright is introduced, install its browser/system dependencies in a dedicated test image matching the project's Playwright version and expose it through a Compose test service. The current slim Node development image does not include browsers. Keep unit checks in `web`.
+
+See the official [Compose service reference](https://docs.docker.com/reference/compose-file/services/), [Vite server options](https://vite.dev/config/server-options), and [Angular serve options](https://angular.dev/cli/serve) for configuration details.
 
 ## Architecture and ownership
 
@@ -86,7 +126,7 @@ Manually check narrow screens, keyboard focus, reduced motion, touch interaction
 
 ## Implementation workflow and checks
 
-1. Generate the selected framework app into the brief's `app/` folder.
+1. Use the README's Compose setup commands to generate the framework app into `app/`, create its lockfile, and start `web`.
 2. Build a static screen using realistic bundled data.
 3. Complete the first vertical slice and its important behavioral test.
 4. Add persistence with a visible failure state.
@@ -107,4 +147,4 @@ During implementation, define the following script contract in each `package.jso
 
 For `check`, use TypeScript for React/Solid, `vue-tsc` for Vue, `svelte-check` for Svelte, and Angular compilation with strict template checking. Keep generator-provided compiler settings unless a real requirement warrants changing them.
 
-At completion, run formatting, linting, type checks, relevant tests, and the production build. Validate the built app's primary journey. A later CI workflow should run the same commands with `npm ci`; there is no need for a release pipeline before an app exists.
+At completion, run formatting, linting, type checks, relevant tests, and the production build. Validate the built app's primary journey. A later CI workflow should run the same checks through Compose using `npm ci`; there is no need for a release pipeline before an app exists.

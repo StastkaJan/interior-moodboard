@@ -65,15 +65,23 @@ Arrow keys move a selected item; a modifier can increase the step. Do not interc
 
 Done when a board can be composed without dragging, pointer and inspector edits agree, every item stays reachable, and reload restores positions, sizes, palette, and order. Verify smooth manipulation with the intended first-release board size of roughly 30 items before considering canvas rendering or a global state library.
 
-## Future scaffold
+## Docker Compose setup
 
-Run from this folder when implementation starts:
+A [Compose configuration](compose.yaml) is included. The application itself has not been scaffolded. Docker Desktop with Linux containers, or Docker Engine with Compose, is required; host Node.js is unnecessary.
+
+When implementation starts, run these commands once from this repository's root:
 
 ```powershell
-npm create vite@latest app -- --template react-ts
-cd app
-npm install
-npm run dev
+docker compose run --rm setup npm create --yes vite@latest app -- --template react-ts --no-interactive
+docker compose run --rm setup npm --prefix app install --package-lock-only
+docker compose up -d
+docker compose logs -f web
 ```
 
-Use the official [Vite scaffold](https://vite.dev/guide/) and configure the shared quality scripts.
+Open http://localhost:5175 after the server is ready. On a clone that already contains `app/package.json` and `app/package-lock.json`, skip generation and run `docker compose up -d`.
+
+The `setup` service is only used for tooling; ordinary startup launches `web`. Source changes update the running app, and container dependencies use an isolated volume. Stop with `docker compose down`. Set `APP_PORT` in a local `.env` if the default port is occupied.
+
+See the [development guide](DEVELOPMENT.md#docker-compose-workflow) for builds, tests, dependency updates, and the required quality scripts. Keep the generated `dev` script: Compose calls it to launch Vite.
+
+This setup is for development; the finished application will still produce static production assets.
