@@ -1,20 +1,24 @@
-import { useReducer, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { assets } from './data/assets'
 import type { Asset } from './data/types'
 import { BoardCanvas } from './features/board/BoardCanvas'
 import { BoardSettings } from './features/board/BoardSettings'
 import { ItemInspector } from './features/board/ItemInspector'
 import { LayerControls } from './features/board/LayerControls'
-import { boardReducer, createInitialBoard } from './features/board/boardReducer'
+import { SaveStatus } from './features/board/SaveStatus'
+import { usePersistentBoard } from './features/board/usePersistentBoard'
 import styles from './App.module.css'
 import { AssetLibrary } from './features/library/AssetLibrary'
 
 function App() {
-  const [board, dispatch] = useReducer(
-    boardReducer,
-    undefined,
-    createInitialBoard,
-  )
+  const {
+    board,
+    dispatch,
+    saveResult,
+    protectedData,
+    retrySave,
+    replaceSavedBoard,
+  } = usePersistentBoard()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const boardSectionRef = useRef<HTMLElement>(null)
   const selectedItem = board.items.find((item) => item.id === selectedId)
@@ -100,8 +104,22 @@ function App() {
           />
           <div className={styles.boardFooter}>
             <span>Natural forms. Soft textures. Room to breathe.</span>
-            <span>{board.items.length} pieces &middot; this session</span>
+            <span>{board.items.length} pieces</span>
           </div>
+          <SaveStatus
+            saveResult={saveResult}
+            protectedData={protectedData}
+            retrySave={() => {
+              const result = retrySave()
+              if (result?.status === 'saved') boardSectionRef.current?.focus()
+              return result
+            }}
+            replaceSavedBoard={() => {
+              const result = replaceSavedBoard()
+              if (result.status === 'saved') boardSectionRef.current?.focus()
+              return result
+            }}
+          />
         </section>
         <aside
           className={styles.inspector}
