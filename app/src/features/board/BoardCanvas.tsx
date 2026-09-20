@@ -1,4 +1,5 @@
 import { assets } from '../../data/assets'
+import { palettes } from '../../data/palettes'
 import { BoardItem } from './BoardItem'
 import type { Board } from './types'
 import styles from './BoardCanvas.module.css'
@@ -11,7 +12,16 @@ type BoardCanvasProps = {
 
 export function BoardCanvas({ board, selectedId, onSelect }: BoardCanvasProps) {
   return (
-    <div className={styles.canvas} role="group" aria-label="Moodboard items">
+    <div
+      className={styles.canvas}
+      style={{
+        backgroundColor: palettes.find(
+          (palette) => palette.id === board.paletteId,
+        )?.background,
+      }}
+      role="group"
+      aria-label="Moodboard items"
+    >
       {board.items.length === 0 && (
         <div className={styles.empty}>
           <p>A little room for your ideas.</p>

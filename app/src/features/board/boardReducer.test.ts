@@ -22,6 +22,44 @@ function twoItems() {
 }
 
 describe('board reducer', () => {
+  it('commits trimmed titles and known palettes without changing items or order', () => {
+    const board = twoItems()
+    const renamed = boardReducer(board, {
+      type: 'rename',
+      title: '  Quiet room  ',
+    })
+    expect(renamed).toEqual({ ...board, title: 'Quiet room' })
+    expect(renamed.items).toBe(board.items)
+    const recolored = boardReducer(renamed, {
+      type: 'palette',
+      paletteId: 'olive',
+    })
+    expect(recolored).toEqual({ ...renamed, paletteId: 'olive' })
+    expect(recolored.items).toBe(board.items)
+  })
+
+  it('normalizes blank and long titles and ignores unchanged or unknown settings', () => {
+    const board = twoItems()
+    expect(boardReducer(board, { type: 'rename', title: ' \t ' })).toBe(board)
+    const renamed = boardReducer(board, { type: 'rename', title: 'New title' })
+    expect(boardReducer(renamed, { type: 'rename', title: '' }).title).toBe(
+      'My room concept',
+    )
+    expect(
+      boardReducer(board, { type: 'rename', title: 'x'.repeat(81) }).title,
+    ).toBe('x'.repeat(80))
+    expect(
+      boardReducer(board, { type: 'rename', title: `${'x'.repeat(79)} y` })
+        .title,
+    ).toBe('x'.repeat(79))
+    expect(boardReducer(board, { type: 'palette', paletteId: 'missing' })).toBe(
+      board,
+    )
+    expect(boardReducer(board, { type: 'palette', paletteId: 'sand' })).toBe(
+      board,
+    )
+  })
+
   it('adds centered independent instances with ordered catalogue references', () => {
     const board = twoItems()
     expect(board).toMatchObject({

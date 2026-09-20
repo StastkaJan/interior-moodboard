@@ -1,7 +1,8 @@
-﻿import { useReducer, useRef, useState } from 'react'
+import { useReducer, useRef, useState } from 'react'
 import { assets } from './data/assets'
 import type { Asset } from './data/types'
 import { BoardCanvas } from './features/board/BoardCanvas'
+import { BoardSettings } from './features/board/BoardSettings'
 import { ItemInspector } from './features/board/ItemInspector'
 import { boardReducer, createInitialBoard } from './features/board/boardReducer'
 import styles from './App.module.css'
@@ -148,23 +149,7 @@ function App() {
               Choose a piece on the board, or add something you love.
             </p>
           )}
-          <div className={styles.palettePreview}>
-            <h3>Today's inspiration</h3>
-            <p>Warm minimalism</p>
-            <div
-              className={styles.paletteStrip}
-              role="img"
-              aria-label="Chalk, oatmeal, olive, and walnut colors"
-            >
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            <p className={styles.footnote}>
-              Organic materials, grounded tones.
-            </p>
-          </div>
+          <BoardSettings board={board} dispatch={dispatch} />
         </aside>
       </main>
       <footer className={styles.footer}>A space to gather your ideas.</footer>

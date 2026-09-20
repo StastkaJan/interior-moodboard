@@ -1,0 +1,71 @@
+.settings {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-line);
+  font-size: 12px;
+}
+
+.title {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.settings > input {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  font: inherit;
+}
+
+.hint {
+  margin-top: 8px;
+  color: var(--color-muted);
+  font-size: 11px;
+}
+
+.palettes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 20px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.palettes legend {
+  margin-bottom: 8px;
+}
+
+.palette {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 5px;
+  border: 1px solid var(--color-line);
+  border-radius: 4px;
+  background: var(--color-paper);
+  cursor: pointer;
+}
+
+.palette:has(input:checked) {
+  border-color: var(--color-olive);
+  box-shadow: inset 0 0 0 1px var(--color-olive);
+  font-weight: 600;
+}
+
+.palette input {
+  margin: 0;
+  accent-color: var(--color-olive);
+}
+
+.swatch {
+  width: 12px;
+  height: 20px;
+  border: 1px solid #7778;
+  flex-shrink: 0;
+}

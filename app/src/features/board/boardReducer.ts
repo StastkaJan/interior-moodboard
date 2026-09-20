@@ -1,4 +1,5 @@
 import type { Asset } from '../../data/types'
+import { palettes } from '../../data/palettes'
 import {
   BOARD_HEIGHT,
   BOARD_WIDTH,
@@ -8,15 +9,20 @@ import {
 import type { Board, BoardItem } from './types'
 
 export type BoardAction =
+  | { type: 'rename'; title: string }
+  | { type: 'palette'; paletteId: string }
   | { type: 'add'; id: string; asset: Asset }
   | { type: 'move'; id: string; x: number; y: number }
   | { type: 'resize'; id: string; width: number }
   | { type: 'remove'; id: string }
 
+export const DEFAULT_BOARD_TITLE = 'My room concept'
+export const MAX_BOARD_TITLE_LENGTH = 80
+
 export function createInitialBoard(): Board {
   return {
     version: 1,
-    title: 'My room concept',
+    title: DEFAULT_BOARD_TITLE,
     width: BOARD_WIDTH,
     height: BOARD_HEIGHT,
     paletteId: 'sand',
@@ -25,6 +31,18 @@ export function createInitialBoard(): Board {
 }
 
 export function boardReducer(board: Board, action: BoardAction): Board {
+  if (action.type === 'rename') {
+    const title =
+      action.title.trim().slice(0, MAX_BOARD_TITLE_LENGTH).trim() ||
+      DEFAULT_BOARD_TITLE
+    return title === board.title ? board : { ...board, title }
+  }
+  if (action.type === 'palette') {
+    return action.paletteId === board.paletteId ||
+      !palettes.some((palette) => palette.id === action.paletteId)
+      ? board
+      : { ...board, paletteId: action.paletteId }
+  }
   if (action.type === 'add') {
     if (
       !action.id.trim() ||
